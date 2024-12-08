@@ -62,11 +62,36 @@ body {
   }
 }
 
-@layer base {
+/* @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
   }
+} */
+
+@layer utilities {
+  .border-border {
+    border-color: #d1d5db; /* Replace with your desired color */
+  }
+}
+
+/* Ensure dropdown content is visible */
+.dropdown-menu {
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid #e5e7eb; /* Tailwind's border-gray-300 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+}
+
+/* Ensure options are styled correctly */
+.dropdown-option {
+  padding: 8px 16px;
+  cursor: pointer;
+  color: black !important;
+}
+
+.dropdown-option:hover {
+  background-color: #f3f4f6; /* Tailwind's bg-gray-100 */
 }

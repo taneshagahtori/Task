@@ -18,12 +18,6 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectOption,
-} from "@/components/ui/select";
 
 export default function Home() {
   // Set up initial notes state
@@ -37,6 +31,15 @@ export default function Home() {
     { reviewed: false, name: "📐Area of triangles", class: "MAT 630", type: "Lecture", materials: "", created: "September 5, 2024" },
   ]);
   
+  // Handle checkbox toggle
+  const handleCheckboxChange = (noteIndex) => {
+    setNotes((prevNotes) =>
+      prevNotes.map((note, idx) =>
+        idx === noteIndex ? { ...note, reviewed: !note.reviewed } : note
+      )
+    );
+  };
+
   // State to handle filters
   const [filters, setFilters] = useState({ type: "All", class: "All" });
 
@@ -51,7 +54,6 @@ export default function Home() {
   });
 
   const addNewNote = () => {
-    // Add a new note (you can customize this with user input)
     const newNote = {
       reviewed: false,
       name: "New Note",
@@ -59,13 +61,27 @@ export default function Home() {
       type: "Lecture",
       materials: "",
       created: new Date().toLocaleDateString("en-US", {
-        month: "long", // "August"
-        day: "numeric", // "8"
-        year: "numeric", // "2024"
+        month: "long",
+        day: "numeric",
+        year: "numeric",
       }),
     };
 
     setNotes((prevNotes) => [...prevNotes, newNote]);
+  };
+
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedNote, setSelectedNote] = useState(null);
+
+  const openModal = (note) => {
+    setSelectedNote(note);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedNote(null);
   };
 
   return (
@@ -93,36 +109,48 @@ export default function Home() {
 
         <TabPanels>
           <TabPanel>
-            {/* Filters */}
-            <div className="flex items-center gap-4 mb-6">
-              <Select onValueChange={(value) => handleFilterChange("type", value)}>
-                <SelectTrigger className="bg-white border border-borderGray rounded-md px-4 py-2 text-black">
-                  Filter by type
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectOption value="All">All</SelectOption>
-                  <SelectOption value="Lecture">Lecture</SelectOption>
-                  <SelectOption value="Seminar">Seminar</SelectOption>
-                  <SelectOption value="Study Group">Study Group</SelectOption>
-                  <SelectOption value="Reading">Reading</SelectOption>
-                  <SelectOption value="Section">Section</SelectOption>
-                </SelectContent>
-              </Select>
 
-              <Select onValueChange={(value) => handleFilterChange("class", value)}>
-                <SelectTrigger className="bg-white border border-borderGray rounded-md px-4 py-2 text-black">
-                  Filter by class
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectOption value="All">All</SelectOption>
-                  <SelectOption value="MAT 630">MAT 630</SelectOption>
-                  <SelectOption value="HIST 230">HIST 230</SelectOption>
-                  <SelectOption value="LIT 455">LIT 455</SelectOption>
-                  <SelectOption value="ART 399">ART 399</SelectOption>
-                  <SelectOption value="CSCI 104">CSCI 104</SelectOption>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="flex items-center gap-4 mb-6">
+  {/* Filter by Type */}
+  <div className="w-1/2">
+    
+    <select
+      defaultValue=""
+      onChange={(e) => handleFilterChange("type", e.target.value)}
+      className="block w-full px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700"
+    >
+      <option value="" disabled hidden>
+        Filter by Type
+      </option>
+      <option value="All">All</option>
+      <option value="Lecture">Lecture</option>
+      <option value="Seminar">Seminar</option>
+      <option value="Study Group">Study Group</option>
+      <option value="Reading">Reading</option>
+      <option value="Section">Section</option>
+    </select>
+  </div>
+
+  {/* Filter by Class */}
+  <div className="w-1/2">
+    
+    <select
+      defaultValue=""
+      onChange={(e) => handleFilterChange("class", e.target.value)}
+      className="block w-full px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700"
+    >
+      <option value="" disabled hidden>
+        Filter by Class
+      </option>
+      <option value="All">All</option>
+      <option value="MAT 630">MAT 630</option>
+      <option value="HIST 230">HIST 230</option>
+      <option value="LIT 455">LIT 455</option>
+      <option value="ART 399">ART 399</option>
+      <option value="CSCI 104">CSCI 104</option>
+    </select>
+  </div>
+</div>
 
             {/* Table */}
             <div className="bg-white border border-borderGray rounded-lg shadow-sm">
@@ -140,21 +168,24 @@ export default function Home() {
                 </TableHeader>
                 <TableBody>
                   {filteredNotes.map((note, idx) => (
-                    <TableRow key={idx} className="hover:bg-hoverGray">
+                    <TableRow
+                      key={idx}
+                      className="hover:bg-hoverGray cursor-pointer"
+                      onClick={() => openModal(note)}
+                    >
                       <TableCell className="px-4 py-2">
-                        <Checkbox checked={note.reviewed} />
+                        <Checkbox
+                          checked={note.reviewed}
+                          onChange={() => handleCheckboxChange(idx)}
+                        />
                       </TableCell>
                       <TableCell className="px-4 py-2">{note.name}</TableCell>
                       <TableCell className="px-4 py-2">{note.class}</TableCell>
                       <TableCell className="px-4 py-2">{note.type}</TableCell>
                       <TableCell className="px-4 py-2">
                         {note.materials ? (
-                          <a href={note.materials} className="text-blue-500 hover:underline">
-                            Link
-                          </a>
-                        ) : (
-                          "N/A"
-                        )}
+                          <a href={note.materials} className="text-blue-500 hover:underline">Link</a>
+                        ) : "N/A"}
                       </TableCell>
                       <TableCell className="px-4 py-2">{note.created}</TableCell>
                     </TableRow>
@@ -165,6 +196,27 @@ export default function Home() {
           </TabPanel>
         </TabPanels>
       </Tabs>
+
+      {/* Modal */}
+      {modalOpen && selectedNote && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-3/4">
+            <h2 className="text-lg font-bold mb-2">{selectedNote.name}</h2>
+            <p><strong>Class:</strong> {selectedNote.class}</p>
+            <p><strong>Type:</strong> {selectedNote.type}</p>
+            <p><strong>Materials:</strong> {selectedNote.materials || "N/A"}</p>
+            <p><strong>Created:</strong> {selectedNote.created}</p>
+            <div className="mt-4 text-right">
+              <Button
+                onClick={closeModal}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
